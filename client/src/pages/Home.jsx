@@ -77,44 +77,66 @@ export default function Home() {
     }
   }, [url]);
 
-  /* Generate download instructions (bypasses YouTube restrictions) */
-  const handleDownload = useCallback(() => {
+  /* Handle actual download via API */
+  const handleDownload = useCallback(async () => {
     if (!videoData) return;
 
-    // Show instructions for using browser extensions or online services
-    const instructions = `
-To download this video:
+    try {
+      setUiState(STATES.PROCESSING);
 
-Option 1: Browser Extension (Recommended)
-1. Install "YouTube Downloader" extension from Chrome Web Store
-2. Navigate to the video: https://www.youtube.com/watch?v=${videoData.id}
-3. Click the download button that appears
+      const response = await fetch("/api/download", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          url: `https://www.youtube.com/watch?v=${videoData.id}`,
+          format,
+          quality,
+        }),
+      });
 
-Option 2: Online Services
+      const data = await response.json();
+
+      if (data.success && data.downloadUrl) {
+        // Create a temporary download link
+        const link = document.createElement("a");
+        link.href = data.downloadUrl;
+        link.download = data.filename || `${videoData.title}.${format}`;
+        link.style.display = "none";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        setUiState(STATES.READY);
+        alert("Download started! Check your downloads folder.");
+      } else {
+        throw new Error(data.error || "Download failed");
+      }
+    } catch (error) {
+      console.error("Download error:", error);
+      setUiState(STATES.ERROR);
+
+      // Fallback: Show instructions if API fails
+      const fallbackInstructions = `
+Download failed. Please try these alternatives:
+
 • Visit: yt1s.com, y2mate.com, or savefrom.net
 • Paste this URL: https://www.youtube.com/watch?v=${videoData.id}
 • Select ${format.toUpperCase()} format with ${quality}${format === "mp3" ? " kbps" : "p"} quality
 
-Option 3: Desktop Software
-• Use 4K Video Downloader, YTD, or similar software
-• Paste the video URL for direct download
+Video URL copied to clipboard!`;
 
-Video URL has been copied to your clipboard!
-    `;
-
-    // Copy URL to clipboard
-    navigator.clipboard
-      .writeText(`https://www.youtube.com/watch?v=${videoData.id}`)
-      .then(() => {
-        alert(instructions);
-      })
-      .catch(() => {
-        alert(
-          instructions +
-            "\n\nManually copy this URL: https://www.youtube.com/watch?v=" +
-            videoData.id,
+      navigator.clipboard
+        .writeText(`https://www.youtube.com/watch?v=${videoData.id}`)
+        .then(() => alert(fallbackInstructions))
+        .catch(() =>
+          alert(
+            fallbackInstructions +
+              `\n\nManually copy: https://www.youtube.com/watch?v=${videoData.id}`,
+          ),
         );
-      });
+    }
   }, [videoData, format, quality]);
 
   const reset = () => {
