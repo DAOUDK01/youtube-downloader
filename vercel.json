@@ -5,21 +5,17 @@
       "src": "client/package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "../public"
+        "distDir": "../dist"
       }
     }
   ],
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
-    },
-    {
       "src": "/(.*)",
-      "dest": "/public/$1"
+      "dest": "/dist/$1"
     }
   ],
   "buildCommand": "cd client && npm install && npm run build",
-  "outputDirectory": "public",
+  "outputDirectory": "dist",
   "framework": "vite"
 }
