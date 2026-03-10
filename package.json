@@ -1,0 +1,31 @@
+{
+  "name": "youtube-mp3-converter",
+  "version": "2.0.0",
+  "description": "Web-based YouTube to MP3 Converter (React + Express)",
+  "main": "server.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "start": "vite build && node server.js",
+    "server": "node server.js"
+  },
+  "keywords": [
+    "youtube",
+    "mp3",
+    "converter",
+    "web",
+    "react"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.21.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^7.13.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.0",
+    "vite": "^6.0.0"
+  }
+}
