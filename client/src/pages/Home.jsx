@@ -124,135 +124,157 @@ Video URL has been copied to your clipboard!
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-2xl mx-auto px-4">
-        <div className="bg-white rounded-lg shadow-lg p-8">
-          <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">
-            YouTube Converter
-          </h1>
+    <div className="page-content">
+      {/* Hero Section */}
+      <section className="hero">
+        <h1>YouTube Converter</h1>
+        <p className="hero-subtitle">
+          Convert your favorite YouTube videos to MP3 or MP4 format quickly and
+          easily. Just paste the URL below and click convert.
+        </p>
+      </section>
 
-          {/* URL Input */}
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              YouTube URL
-            </label>
-            <div className="flex gap-2">
-              <input
-                type="url"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                placeholder="https://www.youtube.com/watch?v=..."
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                disabled={uiState === STATES.PROCESSING}
+      {/* Converter Card */}
+      <div className="container">
+        {/* Video Information */}
+        {videoData && uiState === STATES.READY && (
+          <div className="video-preview">
+            {videoData.thumbnail && (
+              <img
+                src={videoData.thumbnail}
+                alt="Thumbnail"
+                className="video-thumbnail"
               />
-              <button
-                onClick={handleProcess}
-                disabled={uiState === STATES.PROCESSING || !url.trim()}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            )}
+            <div className="video-preview-info">
+              <div className="video-title">{videoData.title}</div>
+              <div
+                style={{
+                  color: "#8a8f9d",
+                  fontSize: "0.9rem",
+                  marginTop: "4px",
+                }}
               >
-                {uiState === STATES.PROCESSING ? "Processing..." : "Get Info"}
-              </button>
+                by {videoData.author} • ID: {videoData.id}
+              </div>
             </div>
           </div>
+        )}
 
-          {/* Video Information */}
-          {videoData && uiState === STATES.READY && (
-            <div className="mb-6 p-4 border rounded-lg">
-              <div className="flex gap-4">
-                {videoData.thumbnail && (
-                  <img
-                    src={videoData.thumbnail}
-                    alt="Thumbnail"
-                    className="w-32 h-24 object-cover rounded"
-                  />
-                )}
-                <div className="flex-1">
-                  <h3 className="font-semibold text-lg mb-1">
-                    {videoData.title}
-                  </h3>
-                  <p className="text-gray-600 text-sm">by {videoData.author}</p>
-                  <p className="text-blue-600 text-sm font-mono mt-1">
-                    ID: {videoData.id}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Format & Quality Selection */}
-          {uiState === STATES.READY && (
-            <div className="mb-6 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Format
-                </label>
-                <select
-                  value={format}
-                  onChange={(e) => setFormat(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="mp3">MP3 (Audio Only)</option>
-                  <option value="mp4">MP4 (Video)</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Quality
-                </label>
-                <select
-                  value={quality}
-                  onChange={(e) => setQuality(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                >
-                  {format === "mp3" ? (
-                    <>
-                      <option value="320">320 kbps (Highest)</option>
-                      <option value="256">256 kbps (High)</option>
-                      <option value="192">192 kbps (Standard)</option>
-                      <option value="128">128 kbps (Lower)</option>
-                    </>
-                  ) : (
-                    <>
-                      <option value="1080">1080p (Full HD)</option>
-                      <option value="720">720p (HD)</option>
-                      <option value="480">480p (Standard)</option>
-                      <option value="360">360p (Mobile)</option>
-                    </>
-                  )}
-                </select>
-              </div>
-
-              <button
-                onClick={handleDownload}
-                className="w-full py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold"
-              >
-                Get Download Instructions
-              </button>
-            </div>
-          )}
-
-          {/* Reset Button */}
-          {uiState !== STATES.INITIAL && (
+        {/* URL Input */}
+        {uiState === STATES.INITIAL && (
+          <div className="input-group">
+            <input
+              type="text"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleProcess()}
+              placeholder="https://www.youtube.com/watch?v=..."
+              disabled={uiState === STATES.PROCESSING}
+            />
             <button
-              onClick={reset}
-              className="w-full py-2 mt-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+              className="btn-convert"
+              disabled={!url.trim() || uiState === STATES.PROCESSING}
+              onClick={handleProcess}
             >
-              Convert Another Video
+              {uiState === STATES.PROCESSING ? "Processing..." : "Get Info"}
             </button>
-          )}
-
-          {/* Disclaimer */}
-          <div className="mt-8 p-4 bg-yellow-50 border-l-4 border-yellow-400 text-sm text-yellow-700">
-            <p className="font-semibold mb-1">Notice:</p>
-            <p>
-              This tool bypasses YouTube login restrictions by using the public
-              oEmbed API. For downloads, it provides instructions to use browser
-              extensions or desktop software. Respect copyright laws and
-              YouTube's Terms of Service.
-            </p>
           </div>
-        </div>
+        )}
+
+        {/* Format & Quality Selection */}
+        {uiState === STATES.READY && (
+          <>
+            <div className="format-selector" style={{ marginBottom: "20px" }}>
+              <button
+                className={`format-btn ${format === "mp3" ? "format-active" : ""}`}
+                onClick={() => setFormat("mp3")}
+              >
+                🎵 MP3 (Audio)
+              </button>
+              <button
+                className={`format-btn ${format === "mp4" ? "format-active" : ""}`}
+                onClick={() => setFormat("mp4")}
+              >
+                🎬 MP4 (Video)
+              </button>
+            </div>
+
+            <div style={{ marginBottom: "20px" }}>
+              <label
+                style={{
+                  display: "block",
+                  color: "#b0b3b8",
+                  marginBottom: "8px",
+                  fontSize: "0.9rem",
+                }}
+              >
+                Quality Settings
+              </label>
+              <select
+                value={quality}
+                onChange={(e) => setQuality(e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "10px",
+                  backgroundColor: "#22252d",
+                  color: "#e4e6eb",
+                  border: "1px solid #33363e",
+                  borderRadius: "8px",
+                  fontSize: "1rem",
+                }}
+              >
+                {format === "mp3" ? (
+                  <>
+                    <option value="320">320 kbps (Highest Quality)</option>
+                    <option value="256">256 kbps (High Quality)</option>
+                    <option value="192">192 kbps (Standard Quality)</option>
+                    <option value="128">128 kbps (Lower Quality)</option>
+                  </>
+                ) : (
+                  <>
+                    <option value="1080">1080p (Full HD)</option>
+                    <option value="720">720p (HD)</option>
+                    <option value="480">480p (Standard)</option>
+                    <option value="360">360p (Mobile)</option>
+                  </>
+                )}
+              </select>
+            </div>
+
+            <div className="action-buttons joined-buttons">
+              <button className="btn-download" onClick={handleDownload}>
+                Get Download Instructions (.{format})
+              </button>
+              <button className="btn-next" onClick={reset}>
+                Convert Another
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Notice Section */}
+      <div
+        style={{
+          maxWidth: "820px",
+          margin: "0 auto 40px auto",
+          padding: "20px",
+          backgroundColor: "rgba(255, 193, 7, 0.1)",
+          border: "1px solid rgba(255, 193, 7, 0.3)",
+          borderRadius: "12px",
+          color: "#fff3cd",
+        }}
+      >
+        <h3 style={{ marginBottom: "8px", color: "#ffc107" }}>
+          Important Notice:
+        </h3>
+        <p style={{ fontSize: "0.95rem", lineHeight: "1.5", margin: 0 }}>
+          This tool bypasses YouTube login restrictions by using the public
+          oEmbed API. For downloads, it provides instructions to use browser
+          extensions or desktop software. Please respect copyright laws and
+          YouTube's Terms of Service.
+        </p>
       </div>
     </div>
   );
